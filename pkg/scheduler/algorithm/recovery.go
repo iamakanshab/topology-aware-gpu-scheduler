@@ -18,5 +18,5 @@ func NewRecoveryManager(dm *DomainManager, scheduler *TopologyScheduler) *Recove
 }
 
 func (rm *RecoveryManager) HandleNodeFailure(node *v1.Node, pods []*v1.Pod) error {
-    // Implementation from the main scheduler.go file
+    // Implementation TODO
 }
