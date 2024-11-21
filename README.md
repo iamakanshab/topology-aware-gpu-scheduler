@@ -15,8 +15,6 @@ This scheduler ensures optimal placement of GPU workloads by respecting the phys
 
 ## Architecture
 
-![System Architecture](docs/images/system-architecture.svg)
-
 ### Core Components
 - **Input Layer**
   - Job Requirements Parser
