@@ -18,7 +18,7 @@ func NewDomainManager(cache *TopologyCache) *DomainManager {
 }
 
 func (dm *DomainManager) FindAdjacentDomains(count int) ([]*Domain, error) {
-    // Implementation from the main scheduler.go file
+    // Implementation TODO
 }
 
 func (dm *DomainManager) GetDomainForNode(node *v1.Node) *Domain {
