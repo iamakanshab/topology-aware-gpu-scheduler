@@ -37,4 +37,4 @@ func (s *Scorer) calculateDomainScore(domain *Domain, gpuReq int) float64 {
            (perfScore * s.weights.HistoricalPerf)
 }
 
-// TODO: Add implementation details for individual scoring functions...
+// TODO: Add implementation details for individual scoring functions
