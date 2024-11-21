@@ -106,20 +106,6 @@ The scheduler enforces the following placement rules:
 - Kubernetes 1.24+
 - Access to a GPU cluster
 
-### Building
-```bash
-# Run tests
-make test
-
-# Build binary
-make build
-
-# Generate CRDs
-make generate
-
-# Run locally
-make run-local
-```
 
 ### Contributing
 1. Fork the repository
