@@ -4,14 +4,15 @@ A custom Kubernetes scheduler extension that optimizes GPU workload placement ba
 
 ## Overview
 
-This scheduler ensures optimal placement of GPU workloads by respecting the physical network topology of leaf-spine architecture, improving performance by up to 30% through smart placement decisions.
+A custom Kubernetes scheduler extension that optimizes GPU workload placement based on network topology constraints, designed for high-performance GPU clusters. This scheduler ensures optimal placement of GPU workloads by respecting the physical network topology of leaf-spine architecture, improving performance by up to 30% through smart placement decisions.
 
-### Key Features
-- Topology-aware scheduling for GPU workloads
-- Smart domain selection based on job size
-- Automatic recovery with topology constraints
-- Anti-fragmentation mechanisms
-- Real-time cluster state monitoring
+## Features
+
+- 🎯 Topology-aware scheduling for GPU workloads
+- 🔄 Smart domain selection based on job size
+- 🔁 Automatic recovery with topology constraints
+- 🧩 Anti-fragmentation mechanisms
+- 📊 Real-time cluster state monitoring
 
 ## Architecture
 
@@ -32,25 +33,61 @@ This scheduler ensures optimal placement of GPU workloads by respecting the phys
   - Job Deployment Controller
   - Recovery Controller
 
+## Architecture
+
+### Core Components
+
+#### Input Layer
+- Job Requirements Parser
+- Node Health Monitor
+- Topology State Manager
+
+#### Core Scheduler
+- Topology Analyzer
+- Domain Selector
+- Placement Optimizer
+- Scoring Engine
+
+#### Execution Layer
+- Kubernetes Scheduler Plugin
+- Job Deployment Controller
+- Recovery Controller
+
+## Prerequisites
+
+- Kubernetes 1.24+
+- Go 1.20+
+- Docker
+- Access to a GPU cluster
+- `kubectl` configured with cluster access
+
 ## Installation
 
+1. Clone the repository:
 ```bash
-# Clone the repository
 git clone https://github.com/your-org/topology-aware-scheduler
+cd topology-aware-scheduler
+```
 
-# Install dependencies
+2. Install dependencies:
+```bash
 go mod download
+```
 
-# Build
+3. Build:
+```bash
 make build
+```
 
-# Deploy to Kubernetes
-kubectl apply -f deploy/
+4. Deploy using the provided script:
+```bash
+./scripts/deploy.sh
 ```
 
 ## Configuration
 
-### Example Configuration
+The scheduler configuration is managed through a ConfigMap. Here's an example configuration:
+
 ```yaml
 apiVersion: topology.scheduler/v1alpha1
 kind: SchedulerConfig
@@ -69,7 +106,8 @@ spec:
 
 ## Usage
 
-### Job Submission
+### Submitting a GPU Job
+
 ```yaml
 apiVersion: batch/v1
 kind: Job
@@ -91,26 +129,12 @@ spec:
 ```
 
 ### Topology Constraints
+
 The scheduler enforces the following placement rules:
 - 2 nodes → Same leaf domain
 - 4 nodes → Complete leaf domain
 - 8 nodes → Two adjacent leaves
 - 16 nodes → Four adjacent leaves
-
-## Development
-
-### Prerequisites
-- Go 1.20+
-- Kubernetes 1.24+
-- Access to a GPU cluster
-
-
-### Contributing
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
 
 ## Performance
 
@@ -120,30 +144,94 @@ The scheduler enforces the following placement rules:
 - Placement accuracy: 99.99%
 
 ### Monitoring
+
 The scheduler exports Prometheus metrics at `/metrics`:
 - `topology_scheduler_placement_duration_seconds`
 - `topology_scheduler_recovery_duration_seconds`
 - `topology_scheduler_domain_fragmentation_ratio`
 
+## Project Structure
+
+```
+topology-aware-scheduler/
+├── Dockerfile
+├── deploy/
+│   ├── deployment.yaml
+│   ├── service.yaml
+│   ├── rbac.yaml
+│   ├── configmap.yaml
+│   └── crds/
+├── scripts/
+│   ├── deploy.sh
+│   └── verify-installation.sh
+└── cmd/
+    └── scheduler/
+        └── main.go
+```
+
+## Development
+
+### Building from Source
+
+1. Clone the repository
+2. Install dependencies:
+```bash
+go mod download
+```
+
+3. Run tests:
+```bash
+make test
+```
+
+4. Build:
+```bash
+make build
+```
+
+### Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Testing
+
+Run the test suite:
+```bash
+make test
+```
+
+Run integration tests:
+```bash
+make integration-test
+```
+
+## Troubleshooting
+
+Common issues and solutions:
+
+1. **Scheduler not starting**: Check logs using:
+```bash
+kubectl logs -n kube-system -l app=topology-scheduler
+```
+
+2. **Jobs not being scheduled**: Verify scheduler configuration:
+```bash
+kubectl get configmap -n kube-system topology-scheduler-config -o yaml
+```
+
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
 
 ## Support
 
 For support, please:
-1. Check the [Documentation](docs/)
-2. Review [Issues](issues/)
-3. Join our [Slack channel](link-to-slack)
+1. Check the [documentation](docs/)
+2. Open an issue
+3. Join our [Slack channel](#)
 
-## Roadmap
 
-- [ ] Multi-cluster support
-- [ ] Dynamic topology discovery
-- [ ] Advanced anti-fragmentation
-- [ ] Custom scoring plugins
-- [ ] GPU topology awareness
-
-## Authors
-
-- **Advanced Micro** - *Initial work* - [AMD](https://github.com/iamakanshab)
