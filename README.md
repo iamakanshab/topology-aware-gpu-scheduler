@@ -188,6 +188,143 @@ make test
 ```bash
 make build
 ```
+## Examples
+
+### Basic GPU Jobs
+
+#### Single GPU Training Job
+```yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: single-gpu-training
+  annotations:
+    topology.scheduler/gpu-count: "1"
+spec:
+  template:
+    spec:
+      schedulerName: topology-aware-scheduler
+      containers:
+      - name: training
+        image: pytorch/pytorch:latest
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+            cpu: "4"
+            memory: "16Gi"
+```
+
+#### Distributed Training (8 GPUs)
+```yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: distributed-training
+  annotations:
+    topology.scheduler/gpu-count: "8"
+    topology.scheduler/preferred-domain: "leaf-1"
+    topology.scheduler/network-bandwidth: "100Gb"
+spec:
+  template:
+    spec:
+      schedulerName: topology-aware-scheduler
+      containers:
+      - name: training
+        image: pytorch/pytorch:latest
+        resources:
+          limits:
+            nvidia.com/gpu: 8
+```
+
+### Advanced Use Cases
+
+#### Inference Service Deployment
+For latency-sensitive inference services:
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gpu-inference-service
+  annotations:
+    topology.scheduler/gpu-count: "4"
+    topology.scheduler/latency-sensitive: "true"
+spec:
+  replicas: 1
+  template:
+    spec:
+      schedulerName: topology-aware-scheduler
+      containers:
+      - name: inference
+        image: tensorflow/serving:latest
+        resources:
+          limits:
+            nvidia.com/gpu: 4
+```
+
+#### Multi-Node Training Job
+For large-scale distributed training:
+```yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: multi-node-training
+  annotations:
+    topology.scheduler/gpu-count: "16"
+    topology.scheduler/preferred-domain: "spine-1"
+    topology.scheduler/network-bandwidth: "200Gb"
+    topology.scheduler/placement-strategy: "consolidated"
+spec:
+  parallelism: 4
+  completions: 4
+```
+
+### Scheduler Annotations
+
+The scheduler supports various annotations to optimize placement:
+
+| Annotation | Description | Example Value |
+|------------|-------------|---------------|
+| `topology.scheduler/gpu-count` | Number of GPUs required | `"8"` |
+| `topology.scheduler/preferred-domain` | Preferred network domain | `"leaf-1"` |
+| `topology.scheduler/network-bandwidth` | Minimum network bandwidth | `"100Gb"` |
+| `topology.scheduler/latency-sensitive` | Indicates latency-sensitive workload | `"true"` |
+| `topology.scheduler/placement-strategy` | Placement strategy | `"consolidated"` |
+
+### Placement Strategies
+
+The scheduler supports several placement strategies:
+
+1. **Consolidated** (`consolidated`)
+   - Attempts to place all GPUs as close as possible
+   - Optimizes for inter-GPU communication
+   - Best for training workloads
+
+2. **Distributed** (`distributed`)
+   - Spreads GPUs across nodes
+   - Optimizes for fault tolerance
+   - Best for inference workloads
+
+3. **Balanced** (`balanced`)
+   - Balances between consolidation and distribution
+   - Default strategy
+
+### Common Use Cases
+
+1. **Deep Learning Training**
+   - Use consolidated placement
+   - Request high network bandwidth
+   - Specify GPU count based on model size
+
+2. **Inference Services**
+   - Use distributed placement
+   - Enable latency-sensitive flag
+   - Consider using node anti-affinity
+
+3. **Research Workloads**
+   - Use balanced placement
+   - Specify preferred domain if needed
+   - Adjust based on experiment requirements
+
 
 ### Contributing
 
