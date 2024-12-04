@@ -37,7 +37,9 @@ clean:
 
 .PHONY: generate
 generate:
-	.codegen.sh
+	chmod +x codegen.sh
+	./codegen.sh
+	go mod tidy
 
 .PHONY: setup-codegen
 setup-codegen:
