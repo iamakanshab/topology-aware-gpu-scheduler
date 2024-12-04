@@ -40,4 +40,5 @@ ${GOPATH}/bin/informer-gen \
   --listers-package "${INFORMERS_PATH}/listers" \
   --informers-package "${INFORMERS_PATH}/externalversions" \
   --input-dirs "${APIS_PATH}/topology/v1alpha1" \
+  --output-package "${INFORMERS_PATH}" \
   --go-header-file "${SCRIPT_ROOT}/boilerplate.go.txt"
