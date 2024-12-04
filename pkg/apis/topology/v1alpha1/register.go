@@ -1,4 +1,3 @@
-go
 package v1alpha1
 
 import (
@@ -14,34 +13,34 @@ const (
 
 var (
     // SchemeGroupVersion is the group version used to register these objects
-    SchemeGroupVersion = schema.GroupVersion{
-        Group:   GroupName,
-        Version: Version,
-    }
+    SchemeGroupVersion = schema.GroupVersion{Group: GroupName, Version: Version}
 
-    // SchemeBuilder is used to add go types to the GroupVersionKind scheme
-    SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
-
-    // AddToScheme adds the types in this group-version to the given scheme
-    AddToScheme = SchemeBuilder.AddToScheme
+    // SchemeBuilder and AddToScheme will stay in k8s.io/kubernetes.
+    SchemeBuilder      runtime.SchemeBuilder
+    localSchemeBuilder = &SchemeBuilder
+    AddToScheme       = localSchemeBuilder.AddToScheme
 )
+
+func init() {
+    // We only register manually written functions here. The registration of the
+    // generated functions takes place in the generated files. The separation
+    // makes the code compile even when the generated files are missing.
+    localSchemeBuilder.Register(addKnownTypes)
+}
 
 // Resource takes an unqualified resource and returns a Group qualified GroupResource
 func Resource(resource string) schema.GroupResource {
     return SchemeGroupVersion.WithResource(resource).GroupResource()
 }
 
-// addKnownTypes adds our types to the API scheme by registering
+// Adds the list of known types to the given scheme.
 func addKnownTypes(scheme *runtime.Scheme) error {
     scheme.AddKnownTypes(
         SchemeGroupVersion,
-        &TopologySchedulerConfig{},
-        &TopologySchedulerConfigList{},
-        &DomainConfig{},
-        &DomainConfigList{},
+        &TopologyScheduler{},
+        &TopologySchedulerList{},
     )
 
-    // Register the types with the Scheme so the components can map objects to GroupVersionKinds and back
     metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
     return nil
 }
