@@ -38,8 +38,8 @@ clean:
 .PHONY: generate-code
 generate-code:
 	@echo "Generating code..."
-	chmod +x hack/update-codegen.sh
-	./hack/update-codegen.sh
+	chmod +x codegen.sh
+	./codegen.sh
 	go mod tidy
 	go mod vendor
 
