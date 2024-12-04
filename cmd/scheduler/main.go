@@ -17,7 +17,6 @@ import (
     "k8s.io/kubernetes/pkg/scheduler/apis/config"
     metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
     "github.com/prometheus/client_golang/prometheus/promhttp"
-
     "github.com/iamakanshab/topology-aware-scheduler/pkg/scheduler/algorithm"
     clientset "github.com/iamakanshab/topology-aware-scheduler/pkg/generated/clientset/versioned"
 )
