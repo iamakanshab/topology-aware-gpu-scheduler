@@ -145,6 +145,3 @@ cp -r "${TMP_DIR}/github.com/iamakanshab/topology-aware-gpu-scheduler/pkg/genera
 # Cleanup
 rm -rf "${TMP_DIR}"
 EOF
-
-chmod +x codegen.sh
-EOF
