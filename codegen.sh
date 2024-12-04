@@ -4,25 +4,30 @@ set -o nounset
 set -o pipefail
 
 # Get absolute paths
-ROOT_DIR=$(realpath $(dirname "${BASH_SOURCE[0]}")/.. )
+ROOT_DIR=$(realpath $(dirname "${BASH_SOURCE[0]}")/..)
 CODEGEN_PKG=$(go env GOPATH)/pkg/mod/k8s.io/code-generator@v0.28.0
 API_PKG_PATH="github.com/iamakanshab/topology-aware-gpu-scheduler"
 
 echo "Root directory: ${ROOT_DIR}"
 echo "API Package: ${API_PKG_PATH}"
-echo "Checking for boilerplate file..."
-ls -la ${ROOT_DIR}/boilerplate.go.txt
 
-# Create a temporary build directory
+# Copy boilerplate file to temp directory
 TEMP_DIR=$(mktemp -d)
 echo "Using temp directory: ${TEMP_DIR}"
 
-# Create the full directory structure in temp
+# Create the full directory structure in temp and copy files
 mkdir -p "${TEMP_DIR}/src/${API_PKG_PATH}"
 cp -r "${ROOT_DIR}"/* "${TEMP_DIR}/src/${API_PKG_PATH}/"
 
+# Ensure boilerplate file is copied
+cp "${ROOT_DIR}/boilerplate.go.txt" "${TEMP_DIR}/src/${API_PKG_PATH}/"
+
 # Run the generator from the temp directory
 cd "${TEMP_DIR}/src/${API_PKG_PATH}"
+
+echo "Running code generator from $(pwd)..."
+echo "Verifying boilerplate file exists:"
+ls -la boilerplate.go.txt
 
 echo "Running code generator..."
 "${CODEGEN_PKG}/generate-groups.sh" \
@@ -31,7 +36,7 @@ echo "Running code generator..."
   ${API_PKG_PATH}/pkg/apis \
   "topology:v1alpha1" \
   --output-base "${TEMP_DIR}/src" \
-  --go-header-file "${ROOT_DIR}/boilerplate.go.txt"  # Changed this line to use absolute path
+  --go-header-file "${TEMP_DIR}/src/${API_PKG_PATH}/boilerplate.go.txt"
 
 # Copy the generated files back
 mkdir -p "${ROOT_DIR}/pkg/generated"
