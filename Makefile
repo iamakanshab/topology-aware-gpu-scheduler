@@ -3,6 +3,7 @@ VERSION ?= latest
 BUILD_DATE = $(shell date -u +%Y-%m-%dT%H:%M:%SZ)
 BINARY_NAME = topology-scheduler
 GOARCH = amd64
+MODULE_NAME = github.com/yourusername/topology-aware-gpu-scheduler
 
 # Determine OS-specific variables
 ifeq ($(OS),Windows_NT)
@@ -34,8 +35,17 @@ clean:
 	go clean -cache
 	rm -rf vendor/
 
+.PHONY: fix-imports
+fix-imports:
+	@echo "Fixing import paths..."
+	@find . -type f -name "*.go" -exec sed -i 's|github.com/iamakanshab/topology-aware-scheduler|$(MODULE_NAME)|g' {} \;
+
 .PHONY: deps
-deps:
+deps: fix-imports
+	@echo "Updating go.mod..."
+	@if [ -f go.mod ]; then \
+		sed -i 's|module.*|module $(MODULE_NAME)|' go.mod; \
+	fi
 	go mod tidy
 	go mod download
 	go mod vendor
@@ -75,6 +85,7 @@ help:
 	@echo "Available targets:"
 	@echo "  all            - Clean, get dependencies, and build"
 	@echo "  clean          - Remove built binary and clean go cache"
+	@echo "  fix-imports    - Fix import paths in all Go files"
 	@echo "  deps           - Download and tidy dependencies"
 	@echo "  build          - Build the binary"
 	@echo "  test           - Run tests"
