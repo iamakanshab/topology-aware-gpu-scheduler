@@ -35,11 +35,15 @@ clean:
 	go clean -cache
 	rm -rf vendor/
 
-.PHONY: generate
-generate:
+.PHONY: generate-client
+generate-client:
 	chmod +x codegen.sh
 	./codegen.sh
 	go mod tidy
+
+.PHONY: generate
+generate: generate-client
+	go generate ./...
 
 .PHONY: setup-codegen
 setup-codegen:
@@ -83,10 +87,6 @@ lint:
 run: build
 	./$(BIN_DIR)/$(BINARY_NAME)$(BINARY_SUFFIX)
 
-.PHONY: generate
-generate:
-	go generate ./...
-
 .PHONY: docker
 docker:
 	docker build -t $(BINARY_NAME):$(VERSION) .
@@ -103,5 +103,6 @@ help:
 	@echo "  test-coverage  - Run tests with coverage report"
 	@echo "  lint           - Run linter"
 	@echo "  run            - Build and run the binary"
-	@echo "  generate       - Run go generate"
+	@echo "  generate       - Generate code and run go generate"
+	@echo "  generate-client- Generate only client code"
 	@echo "  docker         - Build Docker image"
