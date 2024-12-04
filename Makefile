@@ -25,52 +25,20 @@ LDFLAGS = -ldflags "-X main.version=$(VERSION) -X main.buildDate=$(BUILD_DATE)"
 GOFLAGS = CGO_ENABLED=0
 
 .PHONY: all
-all: clean deps install-deps build
+all: clean deps build
 
 .PHONY: clean
 clean:
 	$(RM) $(BIN_DIR)$(BINARY_NAME)$(BINARY_SUFFIX)
 	go clean -modcache
 	go clean -cache
+	rm -rf vendor/
 
 .PHONY: deps
 deps:
-	go mod download
 	go mod tidy
+	go mod download
 	go mod vendor
-
-.PHONY: install-deps
-install-deps:
-	@echo "Installing required dependencies..."
-	@if [ -f go.mod ]; then \
-		go get -d k8s.io/apiextensions-apiserver/pkg/features@v0.28.0; \
-		go get -d k8s.io/apiserver/pkg/features@v0.28.0; \
-		go get -d k8s.io/kubernetes/pkg/features@v1.28.0; \
-		go get -d k8s.io/kubernetes/pkg/scheduler/framework@v1.28.0; \
-		go get -d k8s.io/kubernetes/pkg/scheduler/util@v1.28.0; \
-		go get -d k8s.io/component-helpers/scheduling/corev1@v0.28.0; \
-		go get -d k8s.io/client-go/tools/record@v0.28.0; \
-		go get -d k8s.io/client-go/tools/events@v0.28.0; \
-		go get -d github.com/golang/groupcache/lru@latest; \
-		go get -d k8s.io/component-base/metrics@v0.28.0; \
-		go get -d github.com/blang/semver/v4@latest; \
-		go get -d github.com/yourusername/topology-aware-gpu-scheduler/pkg/scheduler/plugins/topology@latest; \
-		go get -d k8s.io/kubernetes/pkg/scheduler/metrics@v1.28.0; \
-		go get -d k8s.io/kubernetes/pkg/scheduler/framework/parallelize@v1.28.0; \
-		go get -d github.com/prometheus/client_golang/prometheus/promhttp; \
-		go get -d k8s.io/apimachinery/pkg/apis/meta/v1@v0.28.0; \
-		go get -d k8s.io/client-go/kubernetes@v0.28.0; \
-		go get -d k8s.io/client-go/tools/clientcmd@v0.28.0; \
-		go get -d k8s.io/client-go/tools/leaderelection@v0.28.0; \
-		go get -d k8s.io/client-go/tools/leaderelection/resourcelock@v0.28.0; \
-		go get -d k8s.io/kubernetes/pkg/scheduler/apis/config@v1.28.0; \
-		go get -d k8s.io/kube-scheduler@v0.28.0; \
-		go mod tidy; \
-		go mod vendor; \
-	else \
-		echo "Error: go.mod not found. Please run 'make init-modules' first."; \
-		exit 1; \
-	fi
 
 .PHONY: build
 build:
@@ -102,16 +70,12 @@ generate:
 docker:
 	docker build -t $(BINARY_NAME):$(VERSION) .
 
-.PHONY: setup
-setup: deps install-deps build
-
 .PHONY: help
 help:
 	@echo "Available targets:"
-	@echo "  all            - Clean, get dependencies, install required packages, and build"
+	@echo "  all            - Clean, get dependencies, and build"
 	@echo "  clean          - Remove built binary and clean go cache"
 	@echo "  deps           - Download and tidy dependencies"
-	@echo "  install-deps   - Install specific required dependencies"
 	@echo "  build          - Build the binary"
 	@echo "  test           - Run tests"
 	@echo "  test-coverage  - Run tests with coverage report"
@@ -119,4 +83,3 @@ help:
 	@echo "  run            - Build and run the binary"
 	@echo "  generate       - Run go generate"
 	@echo "  docker         - Build Docker image"
-	@echo "  setup          - Complete setup (deps, install-deps, build)"
