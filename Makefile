@@ -37,12 +37,12 @@ clean:
 
 .PHONY: generate
 generate:
-	./hack/update-codegen.sh
+	.codegen.sh
 
 .PHONY: setup-codegen
 setup-codegen:
-	chmod +x hack/setup-codegen.sh
-	./hack/setup-codegen.sh
+	chmod +x setup-codegen.sh
+	./setup-codegen.sh
 
 .PHONY: fix-imports
 fix-imports:
