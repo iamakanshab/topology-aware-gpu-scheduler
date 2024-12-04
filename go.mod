@@ -69,3 +69,12 @@ replace (
 	k8s.io/mount-utils => k8s.io/mount-utils v0.28.0
 	k8s.io/sample-apiserver => k8s.io/sample-apiserver v0.28.0
 )
+
+require (
+    k8s.io/code-generator v0.28.0
+    k8s.io/apimachinery v0.28.0
+    k8s.io/client-go v0.28.0
+)
+replace (
+    k8s.io/code-generator => k8s.io/code-generator v0.28.0
+)
