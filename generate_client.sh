@@ -25,8 +25,12 @@ APIS_PATH="${SCRIPT_ROOT}/pkg/apis"
 CLIENTSET_PATH="${SCRIPT_ROOT}/pkg/generated/clientset"
 INFORMERS_PATH="${SCRIPT_ROOT}/pkg/generated/informers"
 
+# Find the location of the code-generator binaries
+CLIENT_GEN=$(go env GOPATH)/bin/client-gen
+INFORMER_GEN=$(go env GOPATH)/bin/informer-gen
+
 # Generate clientset
-${GOPATH}/bin/client-gen \
+$CLIENT_GEN \
   --clientset-name "versioned" \
   --input-base "${APIS_PATH}" \
   --input "topology/v1alpha1" \
@@ -34,7 +38,7 @@ ${GOPATH}/bin/client-gen \
   --go-header-file "${SCRIPT_ROOT}/boilerplate.go.txt"
 
 # Generate informers
-${GOPATH}/bin/informer-gen \
+$INFORMER_GEN \
   --versioned-clientset-package "${CLIENTSET_PATH}/versioned" \
   --internal-clientset-package "${CLIENTSET_PATH}/internalclientset" \
   --listers-package "${INFORMERS_PATH}/listers" \
