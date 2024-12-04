@@ -31,6 +31,7 @@ all: clean deps install-deps build
 clean:
 	$(RM) $(BIN_DIR)$(BINARY_NAME)$(BINARY_SUFFIX)
 	go clean -modcache
+	go clean -cache
 
 .PHONY: deps
 deps:
@@ -42,8 +43,20 @@ deps:
 install-deps:
 	@echo "Installing required dependencies..."
 	@if [ -f go.mod ]; then \
-		go get -d github.com/yourusername/topology-aware-gpu-scheduler/pkg/generated/clientset/versioned; \
-		go get -d github.com/yourusername/topology-aware-gpu-scheduler/pkg/scheduler/algorithm; \
+		go get -d k8s.io/apiextensions-apiserver/pkg/features@v0.28.0; \
+		go get -d k8s.io/apiserver/pkg/features@v0.28.0; \
+		go get -d k8s.io/kubernetes/pkg/features@v1.28.0; \
+		go get -d k8s.io/kubernetes/pkg/scheduler/framework@v1.28.0; \
+		go get -d k8s.io/kubernetes/pkg/scheduler/util@v1.28.0; \
+		go get -d k8s.io/component-helpers/scheduling/corev1@v0.28.0; \
+		go get -d k8s.io/client-go/tools/record@v0.28.0; \
+		go get -d k8s.io/client-go/tools/events@v0.28.0; \
+		go get -d github.com/golang/groupcache/lru@latest; \
+		go get -d k8s.io/component-base/metrics@v0.28.0; \
+		go get -d github.com/blang/semver/v4@latest; \
+		go get -d github.com/yourusername/topology-aware-gpu-scheduler/pkg/scheduler/plugins/topology@latest; \
+		go get -d k8s.io/kubernetes/pkg/scheduler/metrics@v1.28.0; \
+		go get -d k8s.io/kubernetes/pkg/scheduler/framework/parallelize@v1.28.0; \
 		go get -d github.com/prometheus/client_golang/prometheus/promhttp; \
 		go get -d k8s.io/apimachinery/pkg/apis/meta/v1@v0.28.0; \
 		go get -d k8s.io/client-go/kubernetes@v0.28.0; \
