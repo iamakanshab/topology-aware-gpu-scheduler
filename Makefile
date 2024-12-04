@@ -35,6 +35,14 @@ clean:
 	go clean -cache
 	rm -rf vendor/
 
+.PHONY: generate-code
+generate-code:
+	@echo "Generating code..."
+	chmod +x hack/update-codegen.sh
+	./hack/update-codegen.sh
+	go mod tidy
+	go mod vendor
+
 .PHONY: fix-imports
 fix-imports:
 	@echo "Fixing import paths..."
