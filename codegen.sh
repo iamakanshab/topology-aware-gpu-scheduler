@@ -15,31 +15,29 @@ echo "Code generator package: ${CODEGEN_PKG}"
 
 # Verify directories and files
 echo "Verifying directory structure..."
-ls -la ${PROJECT_MODULE}/pkg/apis/topology/v1alpha1/
+ls -la ${SCRIPT_ROOT}/pkg/apis/topology/v1alpha1/
 
 # Create temp directory
 TEMP_DIR=$(mktemp -d)
 echo "Created temp directory: ${TEMP_DIR}"
 
-# Create the full directory structure in temp
-mkdir -p "${TEMP_DIR}/src/${PROJECT_MODULE}"
-echo "Copying project files..."
-cp -r "${SCRIPT_ROOT}/." "${TEMP_DIR}/src/${PROJECT_MODULE}/"
+# Set up the correct directory structure in temp
+mkdir -p "${TEMP_DIR}/src/${PROJECT_MODULE}/pkg/apis/topology/v1alpha1"
+cp ${SCRIPT_ROOT}/pkg/apis/topology/v1alpha1/* "${TEMP_DIR}/src/${PROJECT_MODULE}/pkg/apis/topology/v1alpha1/"
+
+# Add boilerplate if it doesn't exist
+mkdir -p "${TEMP_DIR}/src/${PROJECT_MODULE}/hack"
+cp ${SCRIPT_ROOT}/hack/boilerplate.go.txt "${TEMP_DIR}/src/${PROJECT_MODULE}/hack/"
 
 cd "${TEMP_DIR}/src/${PROJECT_MODULE}"
-echo "Working directory: $(pwd)"
-ls -la
 
 # Use generate-groups.sh directly
 ${CODEGEN_PKG}/generate-groups.sh all \
     ${PROJECT_MODULE}/pkg/generated \
     ${PROJECT_MODULE}/pkg/apis \
-    "topology:v1alpha1" \
-    --go-header-file "${SCRIPT_ROOT}/hack/boilerplate.go.txt" \
+    topology:v1alpha1 \
+    --go-header-file hack/boilerplate.go.txt \
     --output-base "${TEMP_DIR}/src"
-
-echo "Checking generated files..."
-ls -la "${TEMP_DIR}/src/${PROJECT_MODULE}/pkg/generated" || true
 
 # Create target directory
 mkdir -p "${SCRIPT_ROOT}/pkg/generated"
@@ -48,11 +46,10 @@ mkdir -p "${SCRIPT_ROOT}/pkg/generated"
 if [ -d "${TEMP_DIR}/src/${PROJECT_MODULE}/pkg/generated" ]; then
     echo "Copying generated files back..."
     cp -r "${TEMP_DIR}/src/${PROJECT_MODULE}/pkg/generated"/* "${SCRIPT_ROOT}/pkg/generated/"
+    echo "Generated code copied successfully"
 else
     echo "ERROR: Generated directory not found. Contents of temp dir:"
-    ls -la "${TEMP_DIR}/src/${PROJECT_MODULE}/pkg/"
-    echo "Contents of apis directory:"
-    ls -la "${TEMP_DIR}/src/${PROJECT_MODULE}/pkg/apis/topology/v1alpha1/"
+    find "${TEMP_DIR}" -type f
 fi
 
 # Cleanup
