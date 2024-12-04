@@ -1,40 +1,41 @@
-package algorithm
+package scheduler
 
 import (
-    v1 "k8s.io/api/core/v1"
+    "k8s.io/api/core/v1"
+    "math"
 )
 
-// Scorer handles the scoring logic for domains and nodes
 type Scorer struct {
-    weights TopologyScore
-    state   *TopologyState
+    topology *TopologyManager
+    weights  *ScoringWeights
 }
 
-func NewScorer(weights TopologyScore) *Scorer {
+type ScoringWeights struct {
+    GPUUtilization     float64
+    NetworkProximity   float64
+    DomainAffinity     float64
+    LoadBalance        float64
+}
+
+func NewScorer(topology *TopologyManager, weights *ScoringWeights) *Scorer {
     return &Scorer{
-        weights: weights,
-        state:   &TopologyState{},
+        topology: topology,
+        weights:  weights,
     }
 }
 
-func (s *Scorer) ScoreDomains(domains []*Domain, gpuReq int) map[*Domain]float64 {
-    scores := make(map[*Domain]float64)
-    for _, domain := range domains {
-        scores[domain] = s.calculateDomainScore(domain, gpuReq)
-    }
-    return scores
+func (s *Scorer) ScoreNode(
+    node *v1.Node,
+    requirements *ResourceRequirements,
+    constraints *SchedulingConstraints,
+) float64 {
+    gpuScore := s.scoreGPUUtilization(node, requirements)
+    networkScore := s.scoreNetworkProximity(node, constraints)
+    affinityScore := s.scoreDomainAffinity(node, constraints)
+    loadScore := s.scoreLoadBalance(node)
+
+    return (gpuScore * s.weights.GPUUtilization) +
+           (networkScore * s.weights.NetworkProximity) +
+           (affinityScore * s.weights.DomainAffinity) +
+           (loadScore * s.weights.LoadBalance)
 }
-
-func (s *Scorer) calculateDomainScore(domain *Domain, gpuReq int) float64 {
-    resourceScore := s.calculateResourceScore(domain, gpuReq)
-    topologyScore := s.calculateTopologyScore(domain)
-    utilizationScore := s.calculateUtilizationScore(domain)
-    perfScore := s.calculatePerformanceScore(domain)
-
-    return (resourceScore * s.weights.ResourceAvailability) +
-           (topologyScore * s.weights.TopologyAlignment) +
-           (utilizationScore * s.weights.DomainUtilization) +
-           (perfScore * s.weights.HistoricalPerf)
-}
-
-// TODO: Add implementation details for individual scoring functions
