@@ -1,4 +1,4 @@
-// cmd/scheduler/main.go
+// +build !generate
 package main
 
 import (
