@@ -42,29 +42,21 @@ deps:
 install-deps:
 	@echo "Installing required dependencies..."
 	@if [ -f go.mod ]; then \
-		go get -d github.com/iamakanshab/topology-aware-gpu-scheduler/pkg/generated/clientset/versioned; \
-		go get -d github.com/iamakanshab/topology-aware-gpu-scheduler/pkg/scheduler/algorithm; \
+		go get -d github.com/yourusername/topology-aware-gpu-scheduler/pkg/generated/clientset/versioned; \
+		go get -d github.com/yourusername/topology-aware-gpu-scheduler/pkg/scheduler/algorithm; \
 		go get -d github.com/prometheus/client_golang/prometheus/promhttp; \
-		go get -d k8s.io/apimachinery/pkg/apis/meta/v1; \
-		go get -d k8s.io/client-go/kubernetes; \
-		go get -d k8s.io/client-go/tools/clientcmd; \
-		go get -d k8s.io/client-go/tools/leaderelection; \
-		go get -d k8s.io/client-go/tools/leaderelection/resourcelock; \
-		go get -d k8s.io/kubernetes/pkg/scheduler/apis/config; \
+		go get -d k8s.io/apimachinery/pkg/apis/meta/v1@v0.28.0; \
+		go get -d k8s.io/client-go/kubernetes@v0.28.0; \
+		go get -d k8s.io/client-go/tools/clientcmd@v0.28.0; \
+		go get -d k8s.io/client-go/tools/leaderelection@v0.28.0; \
+		go get -d k8s.io/client-go/tools/leaderelection/resourcelock@v0.28.0; \
+		go get -d k8s.io/kubernetes/pkg/scheduler/apis/config@v1.28.0; \
+		go get -d k8s.io/kube-scheduler@v0.28.0; \
 		go mod tidy; \
 		go mod vendor; \
 	else \
 		echo "Error: go.mod not found. Please run 'make init-modules' first."; \
 		exit 1; \
-	fi
-
-.PHONY: init-modules
-init-modules:
-	@if [ ! -f go.mod ]; then \
-		echo "Initializing go modules..."; \
-		go mod init github.com/iamakanshab/topology-aware-gpu-scheduler; \
-	else \
-		echo "go.mod already exists, skipping initialization..."; \
 	fi
 
 .PHONY: build
@@ -107,7 +99,6 @@ help:
 	@echo "  clean          - Remove built binary and clean go cache"
 	@echo "  deps           - Download and tidy dependencies"
 	@echo "  install-deps   - Install specific required dependencies"
-	@echo "  init-modules   - Initialize go modules (if not already initialized)"
 	@echo "  build          - Build the binary"
 	@echo "  test           - Run tests"
 	@echo "  test-coverage  - Run tests with coverage report"
