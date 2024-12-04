@@ -15,7 +15,7 @@ echo "Code generator package: ${CODEGEN_PKG}"
 
 # Verify directories and files
 echo "Verifying directory structure..."
-ls -la ${SCRIPT_ROOT}/pkg/apis/topology/v1alpha1/
+ls -la ${PROJECT_MODULE}/pkg/apis/topology/v1alpha1/
 
 # Create temp directory
 TEMP_DIR=$(mktemp -d)
