@@ -11,7 +11,11 @@ require (
 	k8s.io/kube-scheduler v0.28.0 // Changed from k8s.io/scheduler
 	k8s.io/kubernetes v1.28.0
 )
-
+require (
+    k8s.io/code-generator v0.28.0
+    k8s.io/apimachinery v0.28.0
+    k8s.io/client-go v0.28.0
+)
 require (
 	github.com/emicklei/go-restful/v3 v3.9.0 // indirect
 	github.com/go-logr/logr v1.2.4 // indirect
