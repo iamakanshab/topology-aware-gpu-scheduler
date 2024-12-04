@@ -17,41 +17,136 @@ A custom Kubernetes scheduler extension that optimizes GPU workload placement ba
 ## Architecture
 
 ### Core Components
-- **Input Layer**
-  - Job Requirements Parser
-  - Node Health Monitor
-  - Topology State Manager
 
-- **Core Scheduler**
-  - Topology Analyzer
-  - Domain Selector
-  - Placement Optimizer
-  - Scoring Engine
+- **Scheduler**: Optimizes GPU workload placement considering network topology
+- **Domain Manager**: Manages network domains and node relationships
+- **Plugin**: Kubernetes scheduler plugin implementation
+- **Metrics**: Prometheus metrics for monitoring
 
-- **Execution Layer**
-  - Kubernetes Scheduler Plugin
-  - Job Deployment Controller
-  - Recovery Controller
+## Installation
 
-## Architecture
+```bash
+# Clone repository
+git clone https://github.com/your-org/topology-aware-scheduler
 
-### Core Components
+# Build
+make build
 
-#### Input Layer
-- Job Requirements Parser
-- Node Health Monitor
-- Topology State Manager
+# Deploy
+kubectl apply -f deploy/
+```
 
-#### Core Scheduler
-- Topology Analyzer
-- Domain Selector
-- Placement Optimizer
-- Scoring Engine
+## Components
 
-#### Execution Layer
-- Kubernetes Scheduler Plugin
-- Job Deployment Controller
-- Recovery Controller
+### Algorithm (`pkg/algorithm/`)
+
+- `scheduler.go`: Core scheduling logic
+- `domain.go`: Domain management
+- `topology.go`: Network topology handling
+- `recovery.go`: Failure recovery mechanisms
+
+### Scheduler Plugin (`pkg/scheduler/`)
+
+```go
+schedulerName: topology-aware-scheduler
+```
+
+Configuration:
+```yaml
+apiVersion: topology.scheduler/v1alpha1
+kind: TopologySchedulerConfig
+metadata:
+  name: topology-scheduler-config
+spec:
+  scoringWeights:
+    resourceAvailability: 0.4
+    topologyAlignment: 0.3
+    domainUtilization: 0.2
+    historicalPerformance: 0.1
+```
+
+### Metrics
+
+Available at `/metrics`:
+- `topology_scheduler_latency_seconds`
+- `topology_domain_utilization_ratio`
+- `topology_gpu_allocation_ratio`
+- `topology_placement_decisions_total`
+
+### CLI Commands (`cmd/`)
+
+```bash
+# Start scheduler
+./bin/scheduler --kubeconfig=config --scheduler-name=topology-aware-scheduler
+
+# Start controller
+./bin/controller --kubeconfig=config
+```
+
+## Development
+
+### Testing
+
+```bash
+# Unit tests
+go test ./pkg/...
+
+# Integration tests
+go test ./test/integration
+
+# Coverage
+go test -coverprofile=coverage.out ./...
+go tool cover -html=coverage.out
+```
+
+### Build
+
+```bash
+make build
+make docker-build
+make deploy
+```
+
+## Deployment Examples
+
+### Single GPU Job
+```yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: single-gpu-job
+  annotations:
+    topology.scheduler/gpu-count: "1"
+spec:
+  template:
+    spec:
+      schedulerName: topology-aware-scheduler
+      containers:
+      - name: gpu-job
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+```
+
+### Multi-GPU Job
+```yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: multi-gpu-job
+  annotations:
+    topology.scheduler/gpu-count: "8"
+    topology.scheduler/preferred-domain: "leaf-1"
+spec:
+  template:
+    spec:
+      schedulerName: topology-aware-scheduler
+      containers:
+      - name: gpu-job
+        resources:
+          limits:
+            nvidia.com/gpu: 8
+```
 
 ## Prerequisites
 
@@ -150,92 +245,6 @@ The scheduler exports Prometheus metrics at `/metrics`:
 - `topology_scheduler_recovery_duration_seconds`
 - `topology_scheduler_domain_fragmentation_ratio`
 
-## Project Structure
-
-```
-topology-aware-scheduler/
-├── Dockerfile
-├── deploy/
-│   ├── deployment.yaml
-│   ├── service.yaml
-│   ├── rbac.yaml
-│   ├── configmap.yaml
-│   └── crds/
-├── scripts/
-│   ├── deploy.sh
-│   └── verify-installation.sh
-└── cmd/
-    └── scheduler/
-        └── main.go
-```
-
-## Development
-
-### Building from Source
-
-1. Clone the repository
-2. Install dependencies:
-```bash
-go mod download
-```
-
-3. Run tests:
-```bash
-make test
-```
-
-4. Build:
-```bash
-make build
-```
-## Examples
-
-### Basic GPU Jobs
-
-#### Single GPU Training Job
-```yaml
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: single-gpu-training
-  annotations:
-    topology.scheduler/gpu-count: "1"
-spec:
-  template:
-    spec:
-      schedulerName: topology-aware-scheduler
-      containers:
-      - name: training
-        image: pytorch/pytorch:latest
-        resources:
-          limits:
-            nvidia.com/gpu: 1
-            cpu: "4"
-            memory: "16Gi"
-```
-
-#### Distributed Training (8 GPUs)
-```yaml
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: distributed-training
-  annotations:
-    topology.scheduler/gpu-count: "8"
-    topology.scheduler/preferred-domain: "leaf-1"
-    topology.scheduler/network-bandwidth: "100Gb"
-spec:
-  template:
-    spec:
-      schedulerName: topology-aware-scheduler
-      containers:
-      - name: training
-        image: pytorch/pytorch:latest
-        resources:
-          limits:
-            nvidia.com/gpu: 8
-```
-
 ### Advanced Use Cases
 
 #### Inference Service Deployment
@@ -325,17 +334,6 @@ The scheduler supports several placement strategies:
    - Specify preferred domain if needed
    - Adjust based on experiment requirements
 
-### Testing
-
-Run the test suite:
-```bash
-make test
-```
-
-Run integration tests:
-```bash
-make integration-test
-```
 
 ### Contributing
 
