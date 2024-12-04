@@ -30,7 +30,7 @@ echo "Running code generator..."
   ${API_PKG_PATH}/pkg/apis \
   "topology:v1alpha1" \
   --output-base "${TEMP_DIR}/src" \
-  --go-header-file hack/boilerplate.go.txt
+  --go-header-file boilerplate.go.txt
 
 # Copy the generated files back
 mkdir -p "${ROOT_DIR}/pkg/generated"
