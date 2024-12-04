@@ -3,10 +3,9 @@
 # Create directory structure
 mkdir -p pkg/apis/topology/v1alpha1
 mkdir -p pkg/generated
-mkdir -p hack
 
 # Create boilerplate header
-cat > hack/boilerplate.go.txt << 'EOF'
+cat > boilerplate.go.txt << 'EOF'
 /*
 Copyright 2024 The Kubernetes Authors.
 
@@ -135,7 +134,7 @@ bash "${CODEGEN_PKG}/kube_codegen.sh" \
   github.com/iamakanshab/topology-aware-gpu-scheduler/pkg/apis \
   "topology:v1alpha1" \
   --output-base "${TMP_DIR}" \
-  --go-header-file "${SCRIPT_ROOT}/hack/boilerplate.go.txt"
+  --go-header-file "${SCRIPT_ROOT}/boilerplate.go.txt"
 
 # Ensure target directory exists
 mkdir -p "${SCRIPT_ROOT}/pkg/generated"
