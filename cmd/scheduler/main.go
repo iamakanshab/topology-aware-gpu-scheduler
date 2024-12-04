@@ -18,8 +18,8 @@ import (
     metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
     "github.com/prometheus/client_golang/prometheus/promhttp"
 
-    "github.com/your-org/topology-aware-scheduler/pkg/algorithm"
-    clientset "github.com/your-org/topology-aware-scheduler/pkg/generated/clientset/versioned"
+    "github.com/iamakanshab/topology-aware-scheduler/pkg/algorithm"
+    clientset "github.com/iamakanshab/topology-aware-scheduler/pkg/generated/clientset/versioned"
 )
 
 var (
