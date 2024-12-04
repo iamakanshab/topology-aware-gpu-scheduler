@@ -25,7 +25,7 @@ LDFLAGS = -ldflags "-X main.version=$(VERSION) -X main.buildDate=$(BUILD_DATE)"
 GOFLAGS = CGO_ENABLED=0
 
 .PHONY: all
-all: clean deps build
+all: clean deps install-deps build
 
 .PHONY: clean
 clean:
@@ -37,6 +37,24 @@ deps:
 	go mod download
 	go mod tidy
 	go mod vendor
+
+.PHONY: install-deps
+install-deps:
+	go get github.com/iamakanshab/topology-aware-gpu-scheduler/pkg/generated/clientset/versioned
+	go get github.com/iamakanshab/topology-aware-gpu-scheduler/pkg/scheduler/algorithm
+	go get github.com/prometheus/client_golang/prometheus/promhttp
+	go get k8s.io/apimachinery/pkg/apis/meta/v1
+	go get k8s.io/client-go/kubernetes
+	go get k8s.io/client-go/tools/clientcmd
+	go get k8s.io/client-go/tools/leaderelection
+	go get k8s.io/client-go/tools/leaderelection/resourcelock
+	go get k8s.io/kubernetes/pkg/scheduler/apis/config
+	go mod tidy
+	go mod vendor
+
+.PHONY: init-modules
+init-modules:
+	go mod init github.com/iamakanshab/topology-aware-gpu-scheduler
 
 .PHONY: build
 build:
@@ -68,12 +86,17 @@ generate:
 docker:
 	docker build -t $(BINARY_NAME):$(VERSION) .
 
+.PHONY: setup
+setup: init-modules deps install-deps build
+
 .PHONY: help
 help:
 	@echo "Available targets:"
-	@echo "  all            - Clean, get dependencies, and build"
+	@echo "  all            - Clean, get dependencies, install required packages, and build"
 	@echo "  clean          - Remove built binary and clean go cache"
 	@echo "  deps           - Download and tidy dependencies"
+	@echo "  install-deps   - Install specific required dependencies"
+	@echo "  init-modules   - Initialize go modules"
 	@echo "  build          - Build the binary"
 	@echo "  test           - Run tests"
 	@echo "  test-coverage  - Run tests with coverage report"
@@ -81,3 +104,4 @@ help:
 	@echo "  run            - Build and run the binary"
 	@echo "  generate       - Run go generate"
 	@echo "  docker         - Build Docker image"
+	@echo "  setup          - Complete setup from scratch (init, deps, install-deps, build)"
