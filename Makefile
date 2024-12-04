@@ -40,21 +40,32 @@ deps:
 
 .PHONY: install-deps
 install-deps:
-	go get github.com/iamakanshab/topology-aware-gpu-scheduler/pkg/generated/clientset/versioned
-	go get github.com/iamakanshab/topology-aware-gpu-scheduler/pkg/scheduler/algorithm
-	go get github.com/prometheus/client_golang/prometheus/promhttp
-	go get k8s.io/apimachinery/pkg/apis/meta/v1
-	go get k8s.io/client-go/kubernetes
-	go get k8s.io/client-go/tools/clientcmd
-	go get k8s.io/client-go/tools/leaderelection
-	go get k8s.io/client-go/tools/leaderelection/resourcelock
-	go get k8s.io/kubernetes/pkg/scheduler/apis/config
-	go mod tidy
-	go mod vendor
+	@echo "Installing required dependencies..."
+	@if [ -f go.mod ]; then \
+		go get -d github.com/iamakanshab/topology-aware-gpu-scheduler/pkg/generated/clientset/versioned; \
+		go get -d github.com/iamakanshab/topology-aware-gpu-scheduler/pkg/scheduler/algorithm; \
+		go get -d github.com/prometheus/client_golang/prometheus/promhttp; \
+		go get -d k8s.io/apimachinery/pkg/apis/meta/v1; \
+		go get -d k8s.io/client-go/kubernetes; \
+		go get -d k8s.io/client-go/tools/clientcmd; \
+		go get -d k8s.io/client-go/tools/leaderelection; \
+		go get -d k8s.io/client-go/tools/leaderelection/resourcelock; \
+		go get -d k8s.io/kubernetes/pkg/scheduler/apis/config; \
+		go mod tidy; \
+		go mod vendor; \
+	else \
+		echo "Error: go.mod not found. Please run 'make init-modules' first."; \
+		exit 1; \
+	fi
 
 .PHONY: init-modules
 init-modules:
-	go mod init github.com/iamakanshab/topology-aware-gpu-scheduler
+	@if [ ! -f go.mod ]; then \
+		echo "Initializing go modules..."; \
+		go mod init github.com/iamakanshab/topology-aware-gpu-scheduler; \
+	else \
+		echo "go.mod already exists, skipping initialization..."; \
+	fi
 
 .PHONY: build
 build:
@@ -87,7 +98,7 @@ docker:
 	docker build -t $(BINARY_NAME):$(VERSION) .
 
 .PHONY: setup
-setup: init-modules deps install-deps build
+setup: deps install-deps build
 
 .PHONY: help
 help:
@@ -96,7 +107,7 @@ help:
 	@echo "  clean          - Remove built binary and clean go cache"
 	@echo "  deps           - Download and tidy dependencies"
 	@echo "  install-deps   - Install specific required dependencies"
-	@echo "  init-modules   - Initialize go modules"
+	@echo "  init-modules   - Initialize go modules (if not already initialized)"
 	@echo "  build          - Build the binary"
 	@echo "  test           - Run tests"
 	@echo "  test-coverage  - Run tests with coverage report"
@@ -104,4 +115,4 @@ help:
 	@echo "  run            - Build and run the binary"
 	@echo "  generate       - Run go generate"
 	@echo "  docker         - Build Docker image"
-	@echo "  setup          - Complete setup from scratch (init, deps, install-deps, build)"
+	@echo "  setup          - Complete setup (deps, install-deps, build)"
