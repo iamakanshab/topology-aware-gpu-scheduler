@@ -1,10 +1,11 @@
-go
+// cmd/scheduler/main.go
 package main
 
 import (
     "context"
     "flag"
     "fmt"
+    "net/http"
     "os"
     "time"
 
@@ -14,35 +15,43 @@ import (
     "k8s.io/client-go/tools/leaderelection/resourcelock"
     "k8s.io/klog/v2"
     "k8s.io/kubernetes/pkg/scheduler/apis/config"
+    metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+    "github.com/prometheus/client_golang/prometheus/promhttp"
+
     "github.com/your-org/topology-aware-scheduler/pkg/algorithm"
     clientset "github.com/your-org/topology-aware-scheduler/pkg/generated/clientset/versioned"
-    "github.com/prometheus/client_golang/prometheus/promhttp"
-    "net/http"
 )
 
 var (
-    masterURL         string
-    kubeconfig       string
-    schedulerName    string
-    leaderElect      bool
-    lockObjectName   string
+    masterURL            string
+    kubeconfig          string
+    schedulerName       string
+    leaderElect         bool
+    lockObjectName      string
     lockObjectNamespace string
+    version            string // Added for version info
+    buildDate          string // Added for build date
 )
 
 func main() {
     klog.InitFlags(nil)
     flag.Parse()
 
+    klog.Infof("Starting Topology-Aware GPU Scheduler - Version: %s, Build Date: %s", version, buildDate)
+
+    // Build kubernetes config
     cfg, err := clientcmd.BuildConfigFromFlags(masterURL, kubeconfig)
     if err != nil {
         klog.Fatalf("Error building kubeconfig: %v", err)
     }
 
+    // Create kubernetes clientset
     kubeClient, err := kubernetes.NewForConfig(cfg)
     if err != nil {
         klog.Fatalf("Error building kubernetes clientset: %v", err)
     }
 
+    // Create topology clientset
     topologyClient, err := clientset.NewForConfig(cfg)
     if err != nil {
         klog.Fatalf("Error building topology clientset: %v", err)
@@ -61,7 +70,7 @@ func main() {
         klog.Fatal(http.ListenAndServe(":8080", nil))
     }()
 
-    // Leader election configuration
+    // Leader election handling
     if leaderElect {
         lock := &resourcelock.LeaseLock{
             LeaseMeta: metav1.ObjectMeta{
