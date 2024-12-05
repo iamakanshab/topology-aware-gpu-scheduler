@@ -20,13 +20,15 @@ cp -r "${ROOT_DIR}"/* "${TEMP_DIR}/src/${API_PKG_PATH}/"
 cd "${TEMP_DIR}/src/${API_PKG_PATH}"
 
 echo "Running code generator..."
-"${CODEGEN_PKG}/generate-groups.sh" \
-  "deepcopy,client,informer,lister" \
-  ${API_PKG_PATH}/pkg/generated \
-  ${API_PKG_PATH}/pkg/apis \
+
+GOPATH="${TEMP_DIR}" GO111MODULE=on "${CODEGEN_PKG}/generate-groups.sh" \
+  "client,informer,lister,deepcopy" \
+  "${API_PKG_PATH}/pkg/generated" \
+  "${API_PKG_PATH}/pkg/apis" \
   "topology:v1alpha1" \
   --output-base "${TEMP_DIR}/src" \
-  --go-header-file "${PWD}/boilerplate.go.txt"
+  --go-header-file "${PWD}/boilerplate.go.txt" \
+  --trim-path-prefix "${API_PKG_PATH}"
 
 # Copy the generated files back
 mkdir -p "${ROOT_DIR}/pkg/generated"
