@@ -1,6 +1,5 @@
 #!/bin/bash
 set -o errexit
-set -o nounset
 set -o pipefail
 
 SCRIPT_DIR=$(dirname $(realpath "${BASH_SOURCE[0]}"))
