@@ -84,3 +84,10 @@ require (
     k8s.io/client-go v0.28.0
     k8s.io/code-generator v0.28.0
 )
+// Replace directives to ensure consistent versions
+replace (
+    k8s.io/api => k8s.io/api v0.28.0
+    k8s.io/client-go => k8s.io/client-go v0.28.0
+    k8s.io/apimachinery => k8s.io/apimachinery v0.28.0
+    k8s.io/code-generator => k8s.io/code-generator v0.28.0
+)
