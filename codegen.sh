@@ -35,8 +35,7 @@ echo "Verifying boilerplate file exists at: ${PWD}/boilerplate.go.txt"
 ls -la boilerplate.go.txt
 
 echo "Running code generator..."
-"${CODEGEN_PKG}/generate-groups.sh" \
-  "client,informer,lister" \
+"${CODEGEN_PKG}/generate-groups.sh" "all" \
   ${API_PKG_PATH}/pkg/generated \
   ${API_PKG_PATH}/pkg/apis \
   "topology:v1alpha1" \
